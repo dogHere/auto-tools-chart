@@ -1,5 +1,6 @@
 package com.github.doghere.chart.config
 
+import java.io.File
 import java.nio.file.Paths
 
 
@@ -50,9 +51,18 @@ class Chart(val title:String,val actions:List[Option[Action]],val coding:Option[
       k.isDefined
     }).foreach(k=>{
       if(k.get._1=="from"){
-        fromValue=Some(Paths.get(currentPath,k.get._2).toString)
+        // absolutePath
+        fromValue=if(new File(k.get._2).getAbsolutePath == k.get._2){
+          Some(Paths.get(k.get._2).toString)
+        }else {
+          Some(Paths.get(currentPath,k.get._2).toString)
+        }
       }else if(k.get._1=="to"){
-        toValue = Some(Paths.get(currentPath,k.get._2).toString)
+        toValue = if(new File(k.get._2).getAbsolutePath == k.get._2){
+          Some(Paths.get(k.get._2).toString)
+        }else{
+          Some(Paths.get(currentPath,k.get._2).toString)
+        }
       }
     })
   }

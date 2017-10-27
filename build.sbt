@@ -1,6 +1,6 @@
 name := "scala-chart"
 
-version := "1.0"
+version := "0.0.2"
 
 scalaVersion := "2.12.3"
 
