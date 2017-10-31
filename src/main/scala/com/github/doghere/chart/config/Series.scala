@@ -16,6 +16,10 @@ object Series{
         case "bar"=>new Bar
         case "line"=>new Line
         case _ => new Line
+      },(node \ "level").text.trim match {
+        case ""=>0
+        case e =>try{Integer.parseInt(e)}catch {case exp:Exception=>0}
+        case _ => 0
       }))
     }
   }
@@ -31,7 +35,7 @@ object Series{
   }
 }
 
-class Series(val name:String,val column:String,val render:Render){
+class Series(val name:String,val column:String,val render:Render,val level:Int=0){
 
-  override def toString = s"Series($name, $column, $render)"
+  override def toString = s"Series($name, $column, $render,$level)"
 }
