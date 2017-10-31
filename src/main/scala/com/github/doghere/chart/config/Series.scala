@@ -8,6 +8,7 @@ object Series{
     val name  = node \ "name"
     val column = node \ "column"
     val render = node \ "render"
+    val applications = node \ "applications"
 
     if(List[scala.xml.NodeSeq](name,column).map(k=>if(k.text.trim=="")0 else 1).sum<2){
       None
@@ -16,26 +17,36 @@ object Series{
         case "bar"=>new Bar
         case "line"=>new Line
         case _ => new Line
-      },(node \ "level").text.trim match {
-        case ""=>0
-        case e =>try{Integer.parseInt(e)}catch {case exp:Exception=>0}
-        case _ => 0
-      }))
+      },applications = (applications \ "application").map(s=> {
+        Application.parse(s)
+      }).toList))
     }
   }
 
   def main(args: Array[String]): Unit = {
     val series =
       <series>
+        <name>test</name>
         <column>件均</column>
         <render>bar</render>
+        <applications>
+          <application>
+            <name>group</name>
+            <column>组</column>
+          </application>
+          <application>
+            <name>break</name>
+            <column>类别</column>
+          </application>
+        </applications>
       </series>
 
     println(Series.parse(series))
   }
 }
 
-class Series(val name:String,val column:String,val render:Render,val level:Int=0){
+class Series(val name:String,val column:String,val render:Render
+             ,val applications: List[Option[Application]]=List[Option[Application]]()){
 
-  override def toString = s"Series($name, $column, $render,$level)"
+  override def toString = s"Series($name, $column, $render,$applications)"
 }

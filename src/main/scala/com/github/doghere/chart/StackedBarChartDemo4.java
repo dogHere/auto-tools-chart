@@ -167,33 +167,33 @@ public class StackedBarChartDemo4 extends ApplicationFrame {
         renderer.setSeriesToGroupMap(map);
 
         renderer.setItemMargin(0.0);
-//        Paint p1 = new GradientPaint(
-//                0.0f, 0.0f, new Color(0x22, 0x22, 0xFF), 0.0f, 0.0f, new Color(0x88, 0x88, 0xFF)
-//        );
-//        renderer.setSeriesPaint(0, p1);
-//        renderer.setSeriesPaint(4, p1);
-//        renderer.setSeriesPaint(8, p1);
-//
-//        Paint p2 = new GradientPaint(
-//                0.0f, 0.0f, new Color(0x22, 0xFF, 0x22), 0.0f, 0.0f, new Color(0x88, 0xFF, 0x88)
-//        );
-//        renderer.setSeriesPaint(1, p2);
-//        renderer.setSeriesPaint(5, p2);
-//        renderer.setSeriesPaint(9, p2);
-//
-//        Paint p3 = new GradientPaint(
-//                0.0f, 0.0f, new Color(0xFF, 0x22, 0x22), 0.0f, 0.0f, new Color(0xFF, 0x88, 0x88)
-//        );
-//        renderer.setSeriesPaint(2, p3);
-//        renderer.setSeriesPaint(6, p3);
-//        renderer.setSeriesPaint(10, p3);
-//
-//        Paint p4 = new GradientPaint(
-//                0.0f, 0.0f, new Color(0xFF, 0xFF, 0x22), 0.0f, 0.0f, new Color(0xFF, 0xFF, 0x88)
-//        );
-//        renderer.setSeriesPaint(3, p4);
-//        renderer.setSeriesPaint(7, p4);
-//        renderer.setSeriesPaint(11, p4);
+        Paint p1 = new GradientPaint(
+                0.0f, 0.0f, new Color(0x22, 0x22, 0xFF), 0.0f, 0.0f, new Color(0x88, 0x88, 0xFF)
+        );
+        renderer.setSeriesPaint(0, p1);
+        renderer.setSeriesPaint(4, p1);
+        renderer.setSeriesPaint(8, p1);
+
+        Paint p2 = new GradientPaint(
+                0.0f, 0.0f, new Color(0x22, 0xFF, 0x22), 0.0f, 0.0f, new Color(0x88, 0xFF, 0x88)
+        );
+        renderer.setSeriesPaint(1, p2);
+        renderer.setSeriesPaint(5, p2);
+        renderer.setSeriesPaint(9, p2);
+
+        Paint p3 = new GradientPaint(
+                0.0f, 0.0f, new Color(0xFF, 0x22, 0x22), 0.0f, 0.0f, new Color(0xFF, 0x88, 0x88)
+        );
+        renderer.setSeriesPaint(2, p3);
+        renderer.setSeriesPaint(6, p3);
+        renderer.setSeriesPaint(10, p3);
+
+        Paint p4 = new GradientPaint(
+                0.0f, 0.0f, new Color(0xFF, 0xFF, 0x22), 0.0f, 0.0f, new Color(0xFF, 0xFF, 0x88)
+        );
+        renderer.setSeriesPaint(3, p4);
+        renderer.setSeriesPaint(7, p4);
+        renderer.setSeriesPaint(11, p4);
         renderer.setGradientPaintTransformer(
                 new StandardGradientPaintTransformer(GradientPaintTransformType.HORIZONTAL)
         );
