@@ -1,6 +1,6 @@
 package com.github.doghere.chart
 
-import java.awt.{Color, GradientPaint, Paint}
+import java.awt.{Color, Font, GradientPaint, Paint}
 import java.io.File
 import java.nio.file.Paths
 import java.util
@@ -9,14 +9,18 @@ import javax.swing.{JFrame, SwingUtilities}
 
 import com.github.doghere.chart.config._
 import org.apache.commons.csv.{CSVFormat, CSVParser, CSVRecord}
-import org.jfree.chart.{ChartFactory, ChartPanel, ChartUtilities, JFreeChart, LegendItemCollection}
-import org.jfree.chart.axis.{CategoryAxis, NumberAxis, SubCategoryAxis}
-import org.jfree.chart.plot.{CategoryPlot, PlotOrientation}
+import org.jfree.chart._
+import org.jfree.chart.axis.{Axis => _, _}
+import org.jfree.chart.plot.{CategoryPlot, PlotOrientation, XYPlot}
 import com.github.doghere.chart.render._
-import org.jfree.chart.renderer.category.GroupedStackedBarRenderer
+import org.jfree.chart.labels.StandardCategoryItemLabelGenerator
+import org.jfree.chart.renderer.category.{GroupedStackedBarRenderer, StackedBarRenderer}
+import org.jfree.chart.renderer.xy.{StackedXYBarRenderer, XYItemRenderer, XYLineAndShapeRenderer}
 import org.jfree.data.KeyToGroupMap
-import org.jfree.data.category.DefaultCategoryDataset
+import org.jfree.data.category.{CategoryDataset, DefaultCategoryDataset}
+import org.jfree.data.general.AbstractDataset
 import org.jfree.data.statistics.DefaultMultiValueCategoryDataset
+import org.jfree.data.xy.XYSeriesCollection
 import org.jfree.ui.{GradientPaintTransformType, StandardGradientPaintTransformer}
 
 import scala.collection.mutable.ListBuffer
@@ -43,152 +47,6 @@ class ChartApp(val chartConfig: Chart) extends JFrame {
   private val header = cSVParser.getHeaderMap
   private val records = cSVParser.getRecords
 
-  //
-  //  def getSeries(axisName:String): List[Series] ={
-  //    val ses = ListBuffer[Series]()
-  //
-  //    this.chartConfig.actions.foreach {
-  //      case None =>  throw new Exception(s"Error:chart.action is not set")
-  //      case Some(act) => {
-  //        if (act.operation == Action.to) {
-  //          act.axis.foreach {
-  //            case None =>  throw new Exception(s"Error:chart.action.axis(to) is not set")
-  //            case Some(axis)=>{
-  //              if(axis.position==axisName) axis
-  //                .series.filter(s=> s.isDefined).foreach(k=>ses+=k.get)
-  //            }
-  //          }
-  //        }
-  //      }
-  //    }
-  //    ses.toList
-  //  }
-  //
-  //  def getAxises: List[Axis] ={
-  //    val as = ListBuffer[Axis]()
-  //
-  //    this.chartConfig.actions.foreach {
-  //      case None =>  throw new Exception(s"Error:chart.action is not set")
-  //      case Some(act) =>
-  //        act.axis.foreach {
-  //          case None =>
-  //          case Some(ta) =>
-  //            as += ta
-  //        }
-  //    }
-  //    as.toList
-  //  }
-  //
-  //  private val axises: List[Axis] = getAxises
-  //
-  //  private val xSeries: List[Series] = getSeries("x")
-  //  private val mainXS: Series = xSeries.filter(_.level==0).head
-  //  private val mainXSDataColumn: String = mainXS.column
-  //  private val mainXSDataColumnNumber: Integer = header.get(mainXSDataColumn)
-  //
-  //
-  //
-  //  private val ySeries:List[Series] = getSeries(Axis.y1):::getSeries(Axis.y2)
-  //  private val mainYS: Series = ySeries.filter(_.level==0).head
-  //  private val mainYSDataColumn: String = mainYS.column
-  //  private val mainYSDataColumnNumber: Integer = header.get(mainYSDataColumn)
-  //
-  //  private def createData: DefaultCategoryDataset ={
-  //
-  //    val xL2 = xSeries.filter(_.level==2).head
-  //    val xL2DataColumn = xL2.column
-  //    val xL2DataColumnNumber = header.get(xL2DataColumn)
-  //
-  //    // map level 0
-  //    // load by group
-  //    val data: DefaultCategoryDataset = new DefaultCategoryDataset
-  //    (0 until records.size()).foreach(i=>{
-  //      // map  yMain|x2|xMain
-  //      val record = records.get(i)
-  //      data.addValue(record.get(mainYSDataColumnNumber).toDouble,
-  //        record.get(xL2DataColumnNumber)
-  //        , record.get(mainXSDataColumnNumber))
-  //    })
-  //
-  //    data
-  //  }
-  //
-  //  private def mapKeyGroup:KeyToGroupMap ={
-  //    val xs1 = xSeries.filter(_.level==1).head
-  //    val xs1Column = xs1.column
-  //    val xs1ColumnNumber = header.get(xs1Column)
-  //
-  //    val xs2 = xSeries.filter(_.level==2).head
-  //    val xs2Column = xs2.column
-  //    val xs2ColumnNumber = header.get(xs2Column)
-  //
-  //    // map level 1
-  //    val map = new KeyToGroupMap(records.get(0).get(xs1ColumnNumber))
-  //
-  //    (0 until records.size()).foreach(i=>{
-  //      val record = records.get(i)
-  //      map.mapKeyToGroup(record.get(xs2ColumnNumber)
-  //        ,record.get(xs1ColumnNumber))
-  //    })
-  //    map
-  //  }
-  //
-  //  private def getLcon(level:Int):util.HashSet[String] ={
-  //    val set = new util.HashSet[String]()
-  //    val xs1 = xSeries.filter(_.level==level).head
-  //    val xs1Column = xs1.column
-  //    val xs1ColumnNumber = header.get(xs1Column)
-  //
-  //    (0 until records.size()).foreach(i=>{
-  //      val record = records.get(i)
-  //      set.add(record.get(xs1ColumnNumber))
-  //    })
-  //    set
-  //  }
-  //
-  //
-  //  private def draw2():JFreeChart = {
-  //    if(!this.chartConfig.isComplete){
-  //      throw new RuntimeException("Error:chart is not completed or has error")
-  //    }
-  //    setTitle(this.chartConfig.title)
-  //
-  //    val chart = ChartFactory.createStackedBarChart("Stacked Bar Chart Demo 4", // chart title
-  //      "Category", // domain axis label
-  //      "Value", // range axis label
-  //      createData, // data
-  //      PlotOrientation.VERTICAL, // the plot orientation
-  //      true, // legend
-  //      true, // tooltips
-  //      false // urls)
-  //    )
-  //
-  ////    var renderer = new GroupedStackedBarRenderer
-  //
-  ////    renderer.setSeriesToGroupMap(mapKeyGroup)
-  ////    renderer.setItemMargin(0.0)
-  //
-  //
-  ////    renderer.setGradientPaintTransformer(
-  ////      new StandardGradientPaintTransformer(GradientPaintTransformType.HORIZONTAL))
-  //
-  //
-  //    val domainAxis = new SubCategoryAxis("Product / Month")
-  //    domainAxis.setCategoryMargin(0.05)
-  //
-  //    getLcon(1).forEach(l=>domainAxis.addSubCategory(l))
-  //
-  //    val plot = chart.getPlot.asInstanceOf[CategoryPlot]
-  //    plot.setDomainAxis(domainAxis)
-  ////    plot.setRenderer(renderer)
-  //    plot.setFixedLegendItems(new LegendItemCollection)
-  //
-  //
-  //    chart.setTitle(chartConfig.title)
-  //    chart
-  //
-  //  }
-
 
   private def draw(): JFreeChart = {
 
@@ -201,13 +59,15 @@ class ChartApp(val chartConfig: Chart) extends JFrame {
     var nextSeries = 0
 
     val plot = new CategoryPlot()
+//    val xyPlot = new XYPlot()
 
     this.chartConfig.actions.foreach {
       case None => throw new Exception(s"Error:chart.action is not set")
       case Some(act) => {
         if (act.operation == Action.to) {
           val groupRender = new GroupedStackedBarRenderer
-          val groupMap = new KeyToGroupMap()
+//          val groupMap = new KeyToGroupMap()
+
 
           act.axis.foreach {
             case None => throw new Exception(s"Error:chart.action.axis(to) is not set")
@@ -227,9 +87,17 @@ class ChartApp(val chartConfig: Chart) extends JFrame {
                   case Some(series) => {
                     val applications = series.applications.filter(_.isDefined).map(_.get)
                     val ds = new org.jfree.data.category.DefaultCategoryDataset
+
+                    import org.jfree.data.xy.XYSeriesCollection
+                    val xyDS = new XYSeriesCollection
+
                     val columnNumber = header.get(series.column)
 
                     if (applications.nonEmpty) {
+
+                      val persent = if(applications.exists(_.name == Application.percent)){
+                        true
+                      }else false
 
                       if (applications.exists(_.name == Application.break) &&
                         applications.exists(_.name == Application.group)) {
@@ -238,35 +106,91 @@ class ChartApp(val chartConfig: Chart) extends JFrame {
                         val breakApplicationColumnNumber = header.get(breakApplication.column)
                         (0 until records.size()).foreach(i => {
                           val csvRecord = records.get(i)
-                          ds.addValue(csvRecord.get(columnNumber).toDouble
-                            , csvRecord.get(breakApplicationColumnNumber), csvRecord.get(xColumnNumber))
+
+                          putValue(ds,csvRecord.get(columnNumber),csvRecord.get(breakApplicationColumnNumber),csvRecord.get(xColumnNumber))
+//                          ds.addValue(csvRecord.get(columnNumber).toDouble
+//                            , csvRecord.get(breakApplicationColumnNumber), csvRecord.get(xColumnNumber))
+
+
                         })
                         // group map
                         val groupApplication = applications.filter(_.name == Application.group).head
 
-                        var groupRender = new GroupedStackedBarRenderer
-                        val groupMap = new KeyToGroupMap()
+//                        var groupRender = new GroupedStackedBarRenderer
+//                        groupRender.setItemLabelsVisible(true)
+                        import org.jfree.chart.labels.StandardCategoryItemLabelGenerator
+                        groupRender.setItemLabelGenerator(new StandardCategoryItemLabelGenerator)
+//                        val groupRender = new StackedBarRenderer
+//                        val groupRender = new StackedXYBarRenderer
                         val groupColumnNumber = header.get(groupApplication.column)
+                        val groupMap = new KeyToGroupMap(records.get(0).get(groupColumnNumber))
 
                         (0 until records.size()).foreach(i => {
                           val csvRecord = records.get(i)
-                          groupMap.mapKeyToGroup(csvRecord.get(breakApplicationColumnNumber), csvRecord.get(groupColumnNumber))
-                          println(csvRecord.get(breakApplicationColumnNumber), csvRecord.get(groupColumnNumber))
+                          groupMap.mapKeyToGroup(csvRecord.get(breakApplicationColumnNumber)
+                            , csvRecord.get(groupColumnNumber))
                         })
+                        groupRender.setDrawBarOutline(true)
                         groupRender.setSeriesToGroupMap(groupMap)
+                        groupRender.setItemMargin(0.0)
+                        groupRender.setBaseItemLabelFont(new Font("宋体",Font.PLAIN,12))
+                        groupRender.setItemMargin(.01)
+                        groupRender.setMaximumBarWidth(0.1)
+                        groupRender.setShadowVisible(true)
+                        groupRender.setBaseItemLabelsVisible(true)
+                        import org.jfree.chart.renderer.category.StandardBarPainter
+                        groupRender.setBarPainter(new StandardBarPainter)
+
+                        plot.getDomainAxis.setCategoryMargin(0.5)
+                        plot.getDomainAxis().setCategoryLabelPositions(
+                          CategoryLabelPositions.UP_45)
+
                         plot.setRenderer(nextSeries, groupRender)
+
+
+                        val domain = plot.getDomainAxis
+                        val originLabel = domain.getLabel
+                        val domainAxis = new SubCategoryAxis(originLabel)
+                        domainAxis.setCategoryMargin(0.05)
+
+
+                        (0 until records.size()).map(i => {
+                          val csvRecord = records.get(i)
+                          csvRecord.get(groupColumnNumber)
+                        }).toSet.foreach(s=>{
+                          domainAxis.addSubCategory(s)
+                        })
+                        plot.setDomainAxis(domainAxis)
+
+                        plot.setDomainGridlinesVisible(true)
+
+
                       } else if (applications.exists(_.name == Application.break)) {
                         val application = applications.filter(_.name == Application.break).head
                         val applicationColumnNumber = header.get(application.column)
                         (0 until records.size()).foreach(i => {
                           val csvRecord = records.get(i)
-                          ds.addValue(csvRecord.get(columnNumber).toDouble
-                            , csvRecord.get(applicationColumnNumber), csvRecord.get(xColumnNumber))
+
+                          putValue(ds,csvRecord.get(columnNumber),csvRecord.get(applicationColumnNumber)
+                            , csvRecord.get(xColumnNumber))
+//                          ds.addValue(csvRecord.get(columnNumber).toDouble
+//                            , csvRecord.get(applicationColumnNumber), csvRecord.get(xColumnNumber))
+
+
                         })
-                        plot.setRenderer(nextSeries, new GroupedStackedBarRenderer)
+
+
+//                        plot.setRenderer(nextSeries, new GroupedStackedBarRenderer)
+                        groupRender.setItemLabelGenerator(new StandardCategoryItemLabelGenerator)
+                        groupRender.setBaseItemLabelsVisible(true)
+
+                        import org.jfree.chart.renderer.category.StandardBarPainter
+                        groupRender.setBarPainter(new StandardBarPainter)
+                        plot.setRenderer(nextSeries, groupRender)
+
 
                       } else if (applications.exists(_.name == Application.group)) {
-                        val application = applications.filter(_.name == Application.break).head
+                        val application = applications.filter(_.name == Application.group).head
                         val applicationColumnNumber = header.get(application.column)
                         (0 until records.size()).foreach(i => {
                           val csvRecord = records.get(i)
@@ -274,19 +198,38 @@ class ChartApp(val chartConfig: Chart) extends JFrame {
                             , csvRecord.get(applicationColumnNumber), csvRecord.get(xColumnNumber))
                         })
                         plot.setRenderer(nextSeries, series.render.value)
+
+
+
                       } else {
                         (0 until records.size()).foreach(i => {
                           val csvRecord = records.get(i)
-                          ds.addValue(csvRecord.get(columnNumber).toDouble, series.name, csvRecord.get(xColumnNumber))
+                          putValue(ds
+                            ,csvRecord.get(columnNumber)
+                          ,series.name
+                          , csvRecord.get(xColumnNumber))
+//                          ds.addValue(csvRecord.get(columnNumber).toDouble, series.name, csvRecord.get(xColumnNumber))
                         })
+
                       }
-                    } else {
+                    } else
+                    {
                       (0 until records.size()).foreach(i => {
                         val csvRecord = records.get(i)
-                        ds.addValue(csvRecord.get(columnNumber).toDouble, series.name, csvRecord.get(xColumnNumber))
+                        putValue(ds,csvRecord.get(columnNumber),
+                          series.name,
+                          csvRecord.get(xColumnNumber))
+//                        try {
+//                          ds.addValue(csvRecord.get(columnNumber).toDouble
+//                            , series.name, csvRecord.get(xColumnNumber))
+//
+//                        }catch {case _=>}
                       })
+
                       plot.setRenderer(nextSeries, series.render.value)
+
                     }
+
 
 
                     plot.setDataset(nextSeries, ds)
@@ -309,14 +252,13 @@ class ChartApp(val chartConfig: Chart) extends JFrame {
                     nextSeries += 1
                   }
                 }
-
               }
             }
           }
-
         }
       }
     }
+
 
     import org.jfree.chart.plot.DatasetRenderingOrder
 
@@ -329,9 +271,36 @@ class ChartApp(val chartConfig: Chart) extends JFrame {
     plot.getDomainAxis.setCategoryLabelPositions(CategoryLabelPositions.UP_45)
 
     val chart = new JFreeChart(plot)
+//    val xyPlot = chart.getXYPlot
+//    val renderer = xyPlot.getRenderer();
+//    renderer.setSeriesPaint(0, Color.blue)
     chart.setTitle(chartConfig.title)
     chart
 
+  }
+
+
+  private def putValue[T](ds: DefaultCategoryDataset,value:String, rowKey:Comparable[T], columnKey:Comparable[T]): Unit ={
+    try{
+      ds.addValue(value.toDouble,rowKey,columnKey)
+    }catch {
+      case e: Throwable =>
+    }
+
+  }
+
+  private def percent(plot:CategoryPlot)={
+    import org.jfree.chart.axis.NumberAxis
+    import java.text.DecimalFormat
+    val rangeAxis = plot.getRangeAxis.asInstanceOf[NumberAxis]
+    val pctFormat = new DecimalFormat("#.0%")
+    rangeAxis.setNumberFormatOverride(pctFormat)
+    import org.jfree.chart.labels.StandardCategoryItemLabelGenerator
+    import org.jfree.chart.renderer.category.CategoryItemRenderer
+    import java.text.DecimalFormat
+    val renderer = plot.getRenderer
+    renderer.setItemLabelGenerator(
+      new StandardCategoryItemLabelGenerator("{2}%", new DecimalFormat("0.00")))
   }
 
   def toJPG(path: String): Unit = {

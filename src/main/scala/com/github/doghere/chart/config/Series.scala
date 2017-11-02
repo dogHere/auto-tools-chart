@@ -1,6 +1,6 @@
 package com.github.doghere.chart.config
 
-import com.github.doghere.chart.render.{Bar, Line, Render}
+import com.github.doghere.chart.render.{Bar, DottedLine, Line, Render}
 
 
 object Series{
@@ -16,6 +16,7 @@ object Series{
       Some(new Series(name.text.trim ,column.text.trim,render.text.trim match {
         case "bar"=>new Bar
         case "line"=>new Line
+        case "dottedLine"=> new DottedLine
         case _ => new Line
       },applications = (applications \ "application").map(s=> {
         Application.parse(s)

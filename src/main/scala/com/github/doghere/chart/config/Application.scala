@@ -17,12 +17,13 @@ object Application{
   val group = "group"
   val break = "break"
   val breakGroup = "breakGroup"
+  val percent = "percent"
 
   def parse(node:scala.xml.Node):Option[Application]={
     val name  = node \ "name"
     val column = node \ "column"
 
-    if(List[scala.xml.NodeSeq](name,column).map(k=>if(k.text.trim=="")0 else 1).sum<2){
+    if(List[scala.xml.NodeSeq](name,column).map(k=>if(k.text.trim=="")0 else 1).sum<1){
       None
     }else{
       Some(new Application(name.text.trim ,column.text.trim))
