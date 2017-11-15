@@ -18,6 +18,7 @@ object Application{
   val break = "break"
   val breakGroup = "breakGroup"
   val percent = "percent"
+  val format = "format"
 
   def parse(node:scala.xml.Node):Option[Application]={
     val name  = node \ "name"

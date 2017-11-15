@@ -1,5 +1,7 @@
 package com.github.doghere.chart.render
 
+import java.text.DecimalFormat
+
 import org.jfree.chart.renderer.category.{BarRenderer, BarRenderer3D}
 
 class Bar extends Render{
@@ -17,6 +19,7 @@ class Bar extends Render{
     //设置条目标签显示的位置,outline表示在条目区域外,baseline_center表示基于基线且居中
     b.setBasePositiveItemLabelPosition(new ItemLabelPosition(
       ItemLabelAnchor.OUTSIDE12, TextAnchor.BASELINE_CENTER))
+
     b
   }
 

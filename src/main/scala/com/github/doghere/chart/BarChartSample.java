@@ -128,7 +128,7 @@
 //        // Note: if the source node is not in a scene, css styles will not
 //        // be applied during a snapshot which may result in incorrect rendering.
 //
-//        //防止截图后无数据
+//        //
 //        sourceNode.setAnimated(false);
 //        sourceNode.applyCss();
 //        sourceNode.layout();

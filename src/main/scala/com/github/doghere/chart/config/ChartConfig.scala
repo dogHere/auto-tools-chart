@@ -8,7 +8,7 @@ object ChartConfig{
     if(file.exists() && file.isFile) {
       val config = scala.xml.XML
         .load(file.getPath)
-      val chart = config \ "chart"
+//      val chart = config \ "chart"
       load(config,file.getParent)
     }else{
       None

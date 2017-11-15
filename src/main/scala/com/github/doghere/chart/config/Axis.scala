@@ -15,6 +15,8 @@ object Axis{
     val position = node \ "position"
     val series   = node \ "series"
     val range    = node \ "range"
+    val applications = node \ "applications"
+
 
     if(List[scala.xml.NodeSeq](position,series).map(k=>if(k.text.trim=="")0 else 1).sum<2){
       None
@@ -25,7 +27,9 @@ object Axis{
           case x::_ =>x
           case Nil => None
         }
-      ))
+      ,applications = (applications \ "application").map(s=> {
+          Application.parse(s)
+        }).toList))
     }
   }
 
@@ -43,8 +47,9 @@ object Axis{
   }
 
 }
-class Axis(val position:String,val series:List[Option[Series]],val range:Option[Range] ) {
+class Axis(val position:String,val series:List[Option[Series]],val range:Option[Range],
+           val applications: List[Option[Application]]=List[Option[Application]]()) {
 
-  override def toString = s"Axis($position, $series, $range)"
+  override def toString = s"Axis($position, $series, $range,$applications)"
 }
 

@@ -2,6 +2,7 @@ package com.github.doghere.chart.render
 
 import java.awt.geom.Ellipse2D
 import java.awt.{BasicStroke, Color}
+import java.text.DecimalFormat
 
 import org.jfree.chart.renderer.category.LineAndShapeRenderer
 
@@ -27,6 +28,9 @@ class Line extends Render{
 //    b.setBasePaint(Color.WHITE)
 //    b.setBaseFillPaint(Color.WHITE)
 //    new Ellipse2D.Double(-1,-1,1,1)
+
+//    b.setItemLabelGenerator(
+//      new StandardCategoryItemLabelGenerator("{2}%", new DecimalFormat("0.00")))
     b
   }
 

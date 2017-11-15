@@ -3,6 +3,7 @@ package com.github.doghere.chart
 import java.awt.{Color, Font, GradientPaint, Paint}
 import java.io.File
 import java.nio.file.Paths
+import java.text.DecimalFormat
 import java.util
 import java.util.Random
 import javax.swing.{JFrame, SwingUtilities}
@@ -85,19 +86,16 @@ class ChartApp(val chartConfig: Chart) extends JFrame {
                 axis.series.foreach {
                   case None => throw new Exception(s"Error:chart.action.axis(to.${axis.position}).series error")
                   case Some(series) => {
+                    val axixApplications = axis.applications.filter(_.isDefined).map(_.get)
                     val applications = series.applications.filter(_.isDefined).map(_.get)
                     val ds = new org.jfree.data.category.DefaultCategoryDataset
 
-                    import org.jfree.data.xy.XYSeriesCollection
-                    val xyDS = new XYSeriesCollection
+//                    import org.jfree.data.xy.XYSeriesCollection
+//                    val xyDS = new XYSeriesCollection
 
                     val columnNumber = header.get(series.column)
 
-                    if (applications.nonEmpty) {
-
-                      val persent = if(applications.exists(_.name == Application.percent)){
-                        true
-                      }else false
+                    if (applications.nonEmpty && !applications.exists(_.name == Application.format)) {
 
                       if (applications.exists(_.name == Application.break) &&
                         applications.exists(_.name == Application.group)) {
@@ -165,7 +163,8 @@ class ChartApp(val chartConfig: Chart) extends JFrame {
                         plot.setDomainGridlinesVisible(true)
 
 
-                      } else if (applications.exists(_.name == Application.break)) {
+                      }
+                      else if (applications.exists(_.name == Application.break)) {
                         val application = applications.filter(_.name == Application.break).head
                         val applicationColumnNumber = header.get(application.column)
                         (0 until records.size()).foreach(i => {
@@ -189,7 +188,8 @@ class ChartApp(val chartConfig: Chart) extends JFrame {
                         plot.setRenderer(nextSeries, groupRender)
 
 
-                      } else if (applications.exists(_.name == Application.group)) {
+                      }
+                      else if (applications.exists(_.name == Application.group)) {
                         val application = applications.filter(_.name == Application.group).head
                         val applicationColumnNumber = header.get(application.column)
                         (0 until records.size()).foreach(i => {
@@ -201,7 +201,8 @@ class ChartApp(val chartConfig: Chart) extends JFrame {
 
 
 
-                      } else {
+                      }
+                      else {
                         (0 until records.size()).foreach(i => {
                           val csvRecord = records.get(i)
                           putValue(ds
@@ -212,22 +213,39 @@ class ChartApp(val chartConfig: Chart) extends JFrame {
                         })
 
                       }
-                    } else
-                    {
-                      (0 until records.size()).foreach(i => {
-                        val csvRecord = records.get(i)
-                        putValue(ds,csvRecord.get(columnNumber),
-                          series.name,
-                          csvRecord.get(xColumnNumber))
-//                        try {
-//                          ds.addValue(csvRecord.get(columnNumber).toDouble
-//                            , series.name, csvRecord.get(xColumnNumber))
-//
-//                        }catch {case _=>}
-                      })
+                    }
+                    else {
+                      if(applications.exists(_.name == Application.format)){
 
-                      plot.setRenderer(nextSeries, series.render.value)
+                        (0 until records.size()).foreach(i => {
+                          val csvRecord = records.get(i)
+                          putValue(ds,csvRecord.get(columnNumber),
+                            series.name,
+                            csvRecord.get(xColumnNumber),1)
+                        })
+                        applications.foreach(app=>{
+                           app.name match {
+                             case Application.format => {
+                               val value = series.render.value
+                               value.setItemLabelGenerator(
+                                 new StandardCategoryItemLabelGenerator("{2}", new DecimalFormat(app.column)))
+                               plot.setRenderer(nextSeries, value)
 
+                             }
+                             case a =>
+                           }
+                        })
+
+
+                      }else{
+                        (0 until records.size()).foreach(i => {
+                          val csvRecord = records.get(i)
+                          putValue(ds,csvRecord.get(columnNumber),
+                            series.name,
+                            csvRecord.get(xColumnNumber))
+                        })
+                        plot.setRenderer(nextSeries, series.render.value)
+                      }
                     }
 
 
@@ -239,6 +257,18 @@ class ChartApp(val chartConfig: Chart) extends JFrame {
                     else throw new RuntimeException("axis should be y1 or y2")
                     plot.setRangeAxis(index, {
                       val number = new NumberAxis(series.name)
+                      if(axixApplications.nonEmpty){
+                        axixApplications.foreach(app=>{
+                          app.name match {
+                            case "format"=> {
+                              val pctFormat = new DecimalFormat(app.column)
+                              number.setNumberFormatOverride(pctFormat)
+                            }
+                            case _=>
+                          }
+                        })
+                      }
+
                       axis.range match {
                         case None =>
                         case Some(range) => {
@@ -248,7 +278,6 @@ class ChartApp(val chartConfig: Chart) extends JFrame {
                       number
                     })
                     plot.mapDatasetToRangeAxis(nextSeries, index)
-
                     nextSeries += 1
                   }
                 }
@@ -280,9 +309,9 @@ class ChartApp(val chartConfig: Chart) extends JFrame {
   }
 
 
-  private def putValue[T](ds: DefaultCategoryDataset,value:String, rowKey:Comparable[T], columnKey:Comparable[T]): Unit ={
+  private def putValue[T](ds: DefaultCategoryDataset,value:String, rowKey:Comparable[T], columnKey:Comparable[T],mul:Int=1): Unit ={
     try{
-      ds.addValue(value.toDouble,rowKey,columnKey)
+      ds.addValue(value.toDouble*mul,rowKey,columnKey)
     }catch {
       case e: Throwable =>
     }
